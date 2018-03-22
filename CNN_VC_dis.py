@@ -145,16 +145,18 @@ def train_cnn():
                 acc = sess.run(accuracy, feed_dict={X: batch_x_test, Y: batch_y_test, keepratio: 1.})
                 print(step, acc)
                 if acc > 0.99:
+                    # 保存
                     saver.save(sess, "./model/crack_capcha.model", global_step=step)
                     break
             step += 1
 
-
+# 训练完成，测试结果
 def crack_captcha(captcha_image):
     output = cnn_structure()
 
     saver = tf.train.Saver()
     with tf.Session() as sess:
+        # 加载，要修改1200为实际训练次数
         saver.restore(sess, "./model/crack_capcha.model-1200")
 
         predict = tf.argmax(tf.reshape(output, [-1, max_captcha, char_set_len]), 2)
@@ -163,7 +165,7 @@ def crack_captcha(captcha_image):
         return text
 
 if __name__ == '__main__':
-    train = 0
+    train = 0 #等于0训练，等于1测试
     if train == 0:
         text, image = gen_captcha_text_image()
         print("验证码大小：", image.shape)  # (60,160,3)
