@@ -86,7 +86,8 @@ def cnn_structure():
     bc1 = tf.Variable(tf.random_normal([32]))
     conv1 = tf.nn.conv2d(x, wc1, strides=[1, 1, 1, 1], padding="SAME")
     conv1 = tf.nn.relu(tf.nn.bias_add(conv1, bc1))
-    pool1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="SAME")
+    pool1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[
+                           1, 2, 2, 1], padding="SAME")
     pool1 = tf.nn.dropout(pool1, keepratio)
 
     # 第二次卷积，池化
@@ -94,7 +95,8 @@ def cnn_structure():
     bc2 = tf.Variable(tf.random_normal([64]))
     conv2 = tf.nn.conv2d(pool1, wc2, strides=[1, 1, 1, 1], padding="SAME")
     conv2 = tf.nn.relu(tf.nn.bias_add(conv2, bc2))
-    pool2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="SAME")
+    pool2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[
+                           1, 2, 2, 1], padding="SAME")
     pool2 = tf.nn.dropout(pool2, keepratio)
 
     # 第三次卷积，池化
@@ -102,7 +104,8 @@ def cnn_structure():
     bc3 = tf.Variable(tf.random_normal([128]))
     conv3 = tf.nn.conv2d(pool2, wc3, strides=[1, 1, 1, 1], padding="SAME")
     conv3 = tf.nn.relu(tf.nn.bias_add(conv3, bc3))
-    pool3 = tf.nn.max_pool(conv3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="SAME")
+    pool3 = tf.nn.max_pool(conv3, ksize=[1, 2, 2, 1], strides=[
+                           1, 2, 2, 1], padding="SAME")
     pool3 = tf.nn.dropout(pool3, keepratio)
 
     # 全连接层
@@ -122,7 +125,8 @@ def cnn_structure():
 # 训练卷积神经网络
 def train_cnn():
     output = cnn_structure()
-    cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=output, labels=Y))
+    cost = tf.reduce_mean(
+        tf.nn.sigmoid_cross_entropy_with_logits(logits=output, labels=Y))
     # cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=output, labels=Y))
     optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cost)
     predict = tf.reshape(output, [-1, max_captcha, char_set_len])
@@ -139,18 +143,23 @@ def train_cnn():
         step = 0
         while True:
             batch_x, batch_y = get_next_batch(100)
-            sess.run([optimizer, cost], feed_dict={X: batch_x, Y: batch_y, keepratio: 0.75})
+            sess.run([optimizer, cost], feed_dict={
+                     X: batch_x, Y: batch_y, keepratio: 0.75})
             if step % 10 == 0:
                 batch_x_test, batch_y_test = get_next_batch(100)
-                acc = sess.run(accuracy, feed_dict={X: batch_x_test, Y: batch_y_test, keepratio: 1.})
+                acc = sess.run(accuracy, feed_dict={
+                               X: batch_x_test, Y: batch_y_test, keepratio: 1.})
                 print(step, acc)
                 if acc > 0.99:
                     # 保存
-                    saver.save(sess, "./model/crack_capcha.model", global_step=step)
+                    saver.save(sess, "./model/crack_capcha.model",
+                               global_step=step)
                     break
             step += 1
 
 # 训练完成，测试结果
+
+
 def crack_captcha(captcha_image):
     output = cnn_structure()
 
@@ -159,13 +168,16 @@ def crack_captcha(captcha_image):
         # 加载，要修改1200为实际训练次数
         saver.restore(sess, "./model/crack_capcha.model-1200")
 
-        predict = tf.argmax(tf.reshape(output, [-1, max_captcha, char_set_len]), 2)
-        text_list = sess.run(predict, feed_dict={X: [captcha_image], keepratio: 1.})
+        predict = tf.argmax(tf.reshape(
+            output, [-1, max_captcha, char_set_len]), 2)
+        text_list = sess.run(predict, feed_dict={
+                             X: [captcha_image], keepratio: 1.})
         text = text_list[0].tolist()
         return text
 
+
 if __name__ == '__main__':
-    train = 0 #等于0训练，等于1测试
+    train = 0  # 等于0训练，等于1测试
     if train == 0:
         text, image = gen_captcha_text_image()
         print("验证码大小：", image.shape)  # (60,160,3)
@@ -193,7 +205,8 @@ if __name__ == '__main__':
 
         f = plt.figure()
         ax = f.add_subplot(111)
-        ax.text(0.1, 0.9, text, ha='center', va='center', transform=ax.transAxes)
+        ax.text(0.1, 0.9, text, ha='center',
+                va='center', transform=ax.transAxes)
         plt.imshow(image)
 
         max_captcha = len(text)
