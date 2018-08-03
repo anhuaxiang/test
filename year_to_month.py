@@ -1,9 +1,8 @@
-
 from datetime import datetime, timedelta
 from calendar import monthrange
 
 
-def year_to_month(cls, start_year, end_year, back_secend=0):
+def year_to_month(start_year, end_year, back_secend=0):
     month_range_list = []
     start_time = datetime(start_year, 1, 1)
     for year in range(start_year, end_year):
