@@ -1,3 +1,16 @@
+import time
+
+
+def timing(fun):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        a = fun(*args, **kwargs)
+        end = time.time()
+        print('time:{}'.format(end - start))
+        return a
+    return wrapper
+
+
 def partition(array, first_index, last_index):
     i = first_index - 1
     for j in range(first_index, last_index):
@@ -17,6 +30,7 @@ def quick_sort(array, first_index, last_index):
         return
 
 
+@timing
 def quick_sort_2(array, left, right):
     if left >= right:
         return
@@ -34,7 +48,7 @@ def quick_sort_2(array, left, right):
     quick_sort_2(array, low, left - 1)
     quick_sort_2(array, left + 1, high)
 
+
 arr = [1, 4, 7, 1, 5, 5, 3, 85, 34, 75, 23, 75, 2, 0]
-quick_sort_2(
-    arr, 0, len(arr) - 1)
+quick_sort_2(arr, 0, len(arr) - 1)
 print(arr)
