@@ -1,0 +1,26 @@
+<!--读Excel中的数据-->
+import xlrd
+
+data = xlrd.open_workbook(r'G:\hello.xlsx') #获取excel
+print(data.sheet_names())                   #输出当前excel中说有sheet的名称
+
+table = data.sheets()[0]                    #通过索引得到某一个sheet/表
+table = data.sheet_by_index(0)              #通过索引顺序得到某一个sheet/表
+table = data.sheet_by_name(u'Sheet1')       #通过sheet/表得名称得某一个sheet/表
+
+print(table.name,table.nrows,table.ncols)   #输出当前表的名称、行数、列数
+print(table.cell(0,0).value)                #输出表(0,0)未知的元素
+
+
+<!--往Excel中写数据-->
+import os
+from xlutils.copy import copy
+from xlrd import open_workbook
+
+excel = r'G:\hello.xlsx'
+rb = open_workbook(excel)                   #获取excel
+wb = copy(rb)                               #复制当前的excel
+sheet = wb.get_sheet(0)                     #得到某张表/sheet
+sheet.write(3,0,"小王")                     #在(3,0)位置写入数据
+os.remove(excel)                            #移除存在的excel
+wb.save(excel)                              #保存修改了的excel

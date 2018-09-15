@@ -1,0 +1,5 @@
+n = int(raw_input().strip())                         #输入一个整数
+
+item = [int(x) for x in raw_input().strip().split()] #输入一个整数数组
+
+x,y = map(int, raw_input().split())                  #一行输入多个数

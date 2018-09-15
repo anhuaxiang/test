@@ -1,0 +1,35 @@
+import pandas
+
+# read_csv()读取网络或者本地csv数据
+df = pandas.read_csv('https://raw.githubusercontent.com/alstat/Analysis-with-Programming/master/2014/Python/Numerical-Descriptions-of-the-Data/data.csv')
+
+# 输出数据前5行
+print(df.head())
+# 输出数据前x行
+print(df.head(n=x)
+
+# 输出数据后5行
+print(df.tail())
+# 输出数据后x行
+print(df.tail(x)
+
+# 提取列名
+print df.columns
+#提取行名
+print df.index
+
+# 转置T
+print df.T
+
+# 统计特征描述
+print df.describe()
+
+# 按 Abra 从小到大排序
+df.sort_values(by='Abra')
+
+# 跳出数据(前10行，前两列)
+df.ix[0:10,0:2]
+
+
+
+
