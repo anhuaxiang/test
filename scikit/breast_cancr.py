@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn import preprocessing, cross_validation, neighbors,svm
+from sklearn import preprocessing, cross_validation, neighbors, svm
 import pandas as pd
 
 df = pd.read_csv('breast-cancer-wisconsin.data')
@@ -15,10 +15,10 @@ clf = neighbors.KNeighborsClassifier()
 # clf = svm.SVC()
 clf.fit(x_train, y_train)
 accuracy = clf.score(x_test, y_test)
-print accuracy
+print(accuracy)
 sample = np.array([[1, 2, 5, 4, 2, 4, 6, 4, 4], [1, 2, 5, 4, 2, 4, 2, 4, 4]])
 # sample = sample.reshape(2, -1)
-print clf.predict(sample)
+print(clf.predict(sample))
 
 
 
