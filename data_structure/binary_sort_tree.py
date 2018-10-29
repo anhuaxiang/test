@@ -111,3 +111,9 @@ class TreeNode:
             self.right_child.parent = self
 
 
+"""
+             5
+         4       6
+    2              10
+       3
+"""
