@@ -1,0 +1,32 @@
+from operator import add
+from pyspark import SparkContext
+
+sc = SparkContext('local', 'first app')
+
+log_file = r"C:\Users\yanrujing\Desktop\downloadq4ee6073109\hyperopt_model_building.py"
+log_data = sc.textFile(log_file).cache()
+num_a = log_data.filter(lambda s: 'a' in s).count()
+num_b = log_data.filter(lambda s: 'b' in s).count()
+print(f'a: {num_a}, b: {num_b}')
+
+words = sc.parallelize("apple origin")
+print(words.count())
+print(words.collect())
+
+tmp_f = lambda a: print(a)
+words.foreach(tmp_f)
+
+words_filter = words.filter(lambda x: 'o' in x)
+print(words_filter.collect())
+
+words_map = words.map(lambda x: f'{x}_{x}')
+print(words_map.collect())
+
+nums = sc.parallelize([1, 2, 44, 6, 7])
+nums_add = nums.reduce(add)
+print(nums_add)
+
+join_x = sc.parallelize([("spark", 1), ("hadoop", 4), ('h_base', 7)])
+join_y = sc.parallelize([("spark", 2), ("hadoop", 5), ('hive', '6')])
+joined = join_x.join(join_y)
+print(joined.collect())
