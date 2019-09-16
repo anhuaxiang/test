@@ -1,0 +1,17 @@
+from pyspark import SparkContext
+from pyspark.sql.session import SparkSession
+
+
+sc = SparkContext()
+spark = SparkSession(sc)
+
+df = spark.read.csv(r"D:\workspace\sample\classification\iris.csv", header=True, inferSchema=True)
+print(df.printSchema())
+
+
+# SQLContext 在spark2.0被SparkSession替换
+from pyspark.sql import SQLContext
+sql_context = SQLContext(sc)
+df = sql_context.read.csv(r"D:\workspace\sample\classification\iris.csv", header=True, inferSchema=True)
+print(df.printSchema())
+
