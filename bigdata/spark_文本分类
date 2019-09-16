@@ -1,0 +1,104 @@
+"""
+数据集：https://www.kaggle.com/c/sf-crime/data
+"""
+
+import pyspark.ml.feature as ft
+import pyspark.sql.functions as fn
+
+from pyspark.ml import Pipeline
+from pyspark import SparkContext
+from pyspark.sql.session import SparkSession
+from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+from pyspark.ml.classification import LogisticRegression, NaiveBayes, RandomForestClassifier
+
+
+sc = SparkContext()
+ss = SparkSession(sc)
+
+data = ss.read.csv(r"D:\workspace\sample\文本\sf\train.csv", header=True, inferSchema=True)
+print(data.show(10))
+
+select_list = ['Category', 'Descript']
+data = data.select([f for f in select_list])
+print(data.show(10))
+print(data.printSchema())
+print(data.groupBy('Category').count().orderBy(fn.desc('count')).show(30))
+print(data.groupBy('Descript').count().orderBy(fn.desc('count')).show(20))
+
+stop_words = ['http', 'https', 'amp', 'rt', 't', 'c', 'the']
+regex_tokenizer = ft.RegexTokenizer(inputCol="Descript", outputCol="words", pattern="\\W")
+stop_words_remover = ft.StopWordsRemover(inputCol='words', outputCol='filtered')
+
+# 词频率
+print('-------------词频-----------------')
+count_vectors = ft.CountVectorizer(inputCol='filtered', outputCol='features', vocabSize=10000, minDF=5)
+label_index = ft.StringIndexer(inputCol='Category', outputCol='label')
+pipeline = Pipeline(stages=[regex_tokenizer, stop_words_remover, count_vectors, label_index])
+pipeline_model = pipeline.fit(data)
+dataset = pipeline_model.transform(data)
+train_data, test_data = dataset.randomSplit([0.8, 0.2], seed=0)
+print(train_data.count(), test_data.count())
+lr = LogisticRegression(maxIter=20, regParam=0.3, elasticNetParam=0)
+lr_model = lr.fit(train_data)
+test_predictions = lr_model.transform(test_data)
+train_predictions = lr_model.transform(train_data)
+evaluator = MulticlassClassificationEvaluator(predictionCol='prediction')
+print(evaluator.evaluate(train_predictions))
+print(evaluator.evaluate(test_predictions))
+
+
+# TF_IDF
+print('-------------TF_IDF-----------------')
+hashing_tf = ft.HashingTF(inputCol='filtered', outputCol='raw_features', numFeatures=10000)
+idf = ft.IDF(inputCol='raw_features', outputCol='features', minDocFreq=5)
+pipeline = Pipeline(stages=[regex_tokenizer, stop_words_remover, hashing_tf, idf])
+pipeline_model = pipeline.fit(data)
+data_set = pipeline_model.transform(data)
+train_data, test_data = dataset.randomSplit([0.8, 0.2], seed=0)
+lr = LogisticRegression(maxIter=20, regParam=0.3, elasticNetParam=0)
+lr_model = lr.fit(train_data)
+test_predictions = lr_model.transform(test_data)
+train_predictions = lr_model.transform(train_data)
+evaluator = MulticlassClassificationEvaluator(predictionCol='prediction')
+print(evaluator.evaluate(train_predictions))
+print(evaluator.evaluate(test_predictions))
+
+
+# 交叉验证 网格搜索
+print('-------------交叉验证 网格搜索-----------------')
+parm_grid = ParamGridBuilder() \
+    .addGrid(lr.regParam, [0.1, 0.3, 0.5]) \
+    .addGrid(lr.elasticNetParam, [0.0, 0.1, 0.2]) \
+    .addGrid(lr.maxIter, [10, 20, 30]) \
+    .build()
+cv = CrossValidator(estimator=lr, estimatorParamMaps=parm_grid, evaluator=evaluator, numFolds=5)
+cv_model = cv.fit(train_data)
+test_predictions = cv_model.transform(test_data)
+train_predictions = cv_model.transform(train_data)
+print(evaluator.evaluate(train_predictions))
+print(evaluator.evaluate(test_predictions))
+
+
+# 朴素贝叶斯
+print('-------------朴素贝叶斯-----------------')
+nb = NaiveBayes(smoothing=1)
+nb_model = nb.fit(train_data)
+test_predictions = nb_model.transform(test_data)
+train_predictions = nb_model.transform(train_data)
+evaluator = MulticlassClassificationEvaluator(predictionCol='prediction')
+print(evaluator.evaluate(train_predictions))
+print(evaluator.evaluate(test_predictions))
+
+
+# 随机森林
+print('-------------随机森林-----------------')
+rf = RandomForestClassifier(numTrees=100, maxDepth=4, maxBins=32)
+rf_model = rf.fit(train_data)
+test_predictions = rf_model.transform(test_data)
+train_predictions = rf_model.transform(train_data)
+evaluator = MulticlassClassificationEvaluator(predictionCol='prediction')
+print(evaluator.evaluate(train_predictions))
+print(evaluator.evaluate(test_predictions))
+
+
